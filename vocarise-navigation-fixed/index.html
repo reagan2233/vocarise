@@ -100,19 +100,61 @@ const readingBank=[
 ];
 let dayData=curriculum[(dayNumber-1)%curriculum.length];
 let readingData=readingBank[(dayNumber-1)%readingBank.length];
-const exercises=[
- {title:'Read',time:'3 minutes',desc:'Build articulation and expression with varied everyday reading.',instruction:'Read the passage aloud twice. First, read naturally. Second, slow down, pause at punctuation and emphasise important words.',extra:`<strong>${readingData.title}</strong><p class="verse">${readingData.passage}</p>`},
- {title:'Recall',time:'2 minutes',desc:'Develop memory and fluent explanation.',instruction:'Put the passage away. Explain its main idea aloud in your own words for 60 seconds. Do not try to reproduce every sentence.',extra:`<strong>Recall challenge</strong><p>${dayData[2]}</p>`},
- {title:'Tell',time:'3 minutes',desc:'Make ideas engaging through storytelling.',instruction:'Tell a short story aloud. Give it a beginning, a turning point and an ending. Use specific details and let the story carry the lesson.',extra:`<strong>Today’s story prompt</strong><p>${dayData[3]}</p><p>Remember: use specific details and avoid explaining the lesson before the story has done its work.</p>`},
- {title:'Speak',time:'3 minutes',desc:'Practise speaking clearly without a script.',instruction:'Speak for 60–90 seconds. Begin with one clear point, explain it and finish with a memorable sentence.',extra:`<strong>Speaking challenge</strong><p>${dayData[4]}</p><p>Do not write a full script. You may jot down three keywords, then speak naturally.</p>`},
- {title:'Review',time:'2 minutes',desc:'Notice what worked and choose one improvement.',instruction:'Think about your speaking today. Be honest but constructive. Identify one strength and one thing to improve.',extra:`<label for="reflection"><strong>Today’s reflection</strong></label><p>${dayData[5]}</p><textarea class="field" id="reflection" placeholder="One thing I did well…\nOne thing I will improve…"></textarea><div class="note">Your reflection is saved on this device when you mark this exercise complete.</div>`},
- {title:'Scripture Recall',time:'3–5 minutes',desc:'Recall, understand and communicate God’s Word.',instruction:'Open your Bible and read the passage. Choose a key verse, read it aloud, hide it and recite it. State the reference, explain the meaning in your own words, then use it naturally in a 30–60 second encouragement.',extra:`<strong>Today’s Scripture · ${dayData[6]} (KJV)</strong><p>Read the passage in your Bible. Identify its central truth, memorise a key verse, state the reference and explain how it applies to everyday life.</p>`}
+let exercises=[];
+
+function buildExercises(){
+exercises=[
+{
+title:'Read',
+time:'3 minutes',
+desc:'Build articulation and expression with varied everyday reading.',
+instruction:'Read the passage aloud twice. First, read naturally. Second, slow down, pause at punctuation and emphasise important words.',
+extra:`<strong>${readingData.title}</strong><p class="verse">${readingData.passage}</p>`
+},
+{
+title:'Recall',
+time:'2 minutes',
+desc:'Develop memory and fluent explanation.',
+instruction:'Put the passage away. Explain its main idea aloud in your own words for 60 seconds.',
+extra:`<strong>Recall challenge</strong><p>${dayData[1]}</p>`
+},
+{
+title:'Tell',
+time:'3 minutes',
+desc:'Make ideas engaging through storytelling.',
+instruction:'Tell a short story aloud. Give it a beginning, a turning point and an ending.',
+extra:`<strong>Today’s story prompt</strong><p>${dayData[2]}</p><p>Use specific details and avoid explaining the lesson before the story has done its work.</p>`
+},
+{
+title:'Speak',
+time:'3 minutes',
+desc:'Practise speaking clearly without a script.',
+instruction:'Speak for 60–90 seconds. Begin with one clear point, explain it and finish with a memorable sentence.',
+extra:`<strong>Speaking challenge</strong><p>${dayData[3]}</p><p>Do not write a full script. You may jot down three keywords, then speak naturally.</p>`
+},
+{
+title:'Review',
+time:'2 minutes',
+desc:'Notice what worked and choose one improvement.',
+instruction:'Think about your speaking today. Identify one strength and one thing to improve.',
+extra:`<label for="reflection"><strong>Today’s reflection</strong></label><p>${dayData[4]}</p><textarea class="field" id="reflection" placeholder="One thing I did well…&#10;One thing I will improve…"></textarea><div class="note">Your reflection is saved on this device when you mark this exercise complete.</div>`
+},
+{
+title:'Scripture Recall',
+time:'3–5 minutes',
+desc:'Recall, understand and communicate God’s Word.',
+instruction:'Open your Bible and read the passage. Choose a key verse, read it aloud, hide it and recite it. State the reference, explain the meaning in your own words, then use it naturally in a 30–60 second encouragement.',
+extra:`<strong>Today’s Scripture · ${dayData[5]} (KJV)</strong><p>Read the passage in your Bible. Identify its central truth, memorise a key verse, state the reference and explain how it applies to everyday life.</p>`
+}
 ];
-const progressKey='vocarise-day-'+dayNumber;const legacyKey='speakbetter-'+new Date().toISOString().slice(0,10);let state=JSON.parse(localStorage.getItem(progressKey)||(dayNumber===1?localStorage.getItem(legacyKey):null)||'{}');
+}
+
+buildExercises();
+let progressKey='vocarise-day-'+dayNumber;const legacyKey='speakbetter-'+new Date().toISOString().slice(0,10);let state=JSON.parse(localStorage.getItem(progressKey)||(dayNumber===1?localStorage.getItem(legacyKey):null)||'{}');
 const $=id=>document.getElementById(id);
 function save(){localStorage.setItem(progressKey,JSON.stringify(state));renderList()}
 function updateDayPicker(){const picker=$('dayPicker');if(!picker)return;picker.innerHTML=Array.from({length:curriculum.length},(_,i)=>`<option value="${i+1}" ${i+1===dayNumber?'selected':''}>Day ${i+1}${(()=>{const p=JSON.parse(localStorage.getItem('vocarise-day-'+(i+1))||'{}');return Object.keys(p).filter(k=>/^\d$/.test(k)&&p[k]).length===6?' · Completed':''})()}</option>`).join('');$('dayNavNote').textContent=`You are viewing Day ${dayNumber} of ${curriculum.length}.`;}
-function switchDay(target){const n=Math.max(1,Math.min(curriculum.length,Number(target)||1));dayNumber=n;localStorage.setItem(dayKey,String(dayNumber));dayData=curriculum[(dayNumber-1)%curriculum.length];readingData=readingBank[(dayNumber-1)%readingBank.length];state=JSON.parse(localStorage.getItem('vocarise-day-'+dayNumber)||'{}');$('practice').classList.remove('active');$('home').classList.add('active');updateDayPicker();renderList();window.scrollTo({top:0,behavior:'smooth'});}
+function switchDay(target){const n=Math.max(1,Math.min(curriculum.length,Number(target)||1));dayNumber=n;progressKey='vocarise-day-'+dayNumber;localStorage.setItem(dayKey,String(dayNumber));dayData=curriculum[(dayNumber-1)%curriculum.length];readingData=readingBank[(dayNumber-1)%readingBank.length];buildExercises();state=JSON.parse(localStorage.getItem('vocarise-day-'+dayNumber)||'{}');$('practice').classList.remove('active');$('home').classList.add('active');updateDayPicker();renderList();window.scrollTo({top:0,behavior:'smooth'});}
 $('openDay').onclick=()=>switchDay($('dayPicker').value);
 function renderList(){ $('exerciseList').innerHTML=exercises.map((e,i)=>`<button class="item ${state[i]?'done':''}" data-i="${i}"><span class="num">${i+1}</span><span><strong>${e.title}</strong><small>${e.time} · ${e.desc}</small></span><span class="check">${state[i]?'✓':''}</span></button>`).join('');document.querySelectorAll('.item').forEach(b=>b.addEventListener('click',()=>openTask(+b.dataset.i)));let count=exercises.filter((_,i)=>state[i]).length;$('progressText').textContent=`${count} of 6 completed`;$('progressBar').style.width=(count/6*100)+'%';$('today').textContent=`Day ${dayNumber} · `+new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric'}).format(new Date());$('nextDayPanel').style.display=count===6?'block':'none';updateDayPicker();}
 function openTask(i){let e=exercises[i];$('home').classList.remove('active');$('practice').classList.add('active');$('taskNumber').textContent=`DAY ${dayNumber} · EXERCISE ${i+1} OF 6 · ${e.time}`;$('taskTitle').textContent=e.title;$('taskIntro').textContent=e.desc;$('taskInstruction').innerHTML='<strong>Your task</strong>'+e.instruction;$('taskExtra').innerHTML=e.extra;$('complete').textContent=state[i]?'Completed ✓':'Mark complete';$('complete').onclick=()=>{state[i]=true;if(i===4&&$('reflection'))state.reflection=$('reflection').value;save();$('complete').textContent='Completed ✓';};$('next').onclick=()=>openTask((i+1)%6);}
